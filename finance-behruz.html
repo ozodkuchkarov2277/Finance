@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Бехруз — Финансы</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Arial, sans-serif; min-height: 100vh; background: #fff8ed; color: #3d1f00; padding-bottom: 24px; }
+
+.f-container { max-width: 680px; margin: 0 auto; padding: 16px 14px; }
+
+.f-header { text-align: center; padding: 16px 0 14px; border-bottom: 1px solid #f0d49a; margin-bottom: 16px; }
+.f-header-sub { font-size: 10px; letter-spacing: 4px; color: #a07840; text-transform: uppercase; margin-bottom: 4px; }
+.f-header-name { font-size: 30px; font-weight: 700; color: #d97706; letter-spacing: 4px; }
+.f-header-date { font-size: 11px; color: #a07840; margin-top: 4px; }
+
+.f-balance-card { background: linear-gradient(135deg,#d97706,#f59e0b); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 4px 18px rgba(217,119,6,0.28); color: #fff; position: relative; overflow: hidden; }
+.f-balance-card::after { content: '💰'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 36px; opacity: 0.9; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(155,105,20,0.6); border-radius: 14px; background: rgba(0,0,0,0.09); }
+.f-bal-lbl { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; margin-bottom: 4px; }
+.f-bal-amt { font-size: 38px; font-weight: 700; line-height: 1; }
+.f-bal-sub { font-size: 11px; opacity: 0.7; margin-top: 3px; }
+
+.f-day-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.f-day-card { background: #fff; border: 1px solid #f0d49a; border-radius: 12px; padding: 12px 14px; }
+.f-day-lbl { font-size: 10px; letter-spacing: 2px; color: #a07840; text-transform: uppercase; margin-bottom: 5px; }
+.f-day-amt { font-size: 20px; font-weight: 700; }
+.f-day-amt.income { color: #15803d; }
+.f-day-amt.expense { color: #b91c1c; }
+.f-day-sub { font-size: 10px; color: #a07840; margin-top: 2px; }
+
+.f-card { background: #fff; border: 1px solid #f0d49a; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(217,119,6,0.08); }
+.f-card-title { font-size: 10px; letter-spacing: 3px; color: #a07840; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.f-card-title::after { content: ''; flex: 1; height: 1px; background: #f0d49a; }
+
+.f-input { width: 100%; background: #fff8ed; border: 1px solid #f0d49a; border-radius: 8px; padding: 10px 13px; font-family: Arial; font-size: 14px; color: #3d1f00; outline: none; margin-bottom: 8px; }
+.f-input:focus { border-color: #d97706; }
+.f-input::placeholder { color: #a07840; font-size: 12px; }
+.f-row { display: flex; gap: 7px; margin-bottom: 8px; flex-wrap: wrap; }
+.f-select { background: #fff8ed; border: 1px solid #f0d49a; border-radius: 8px; padding: 10px 11px; font-family: Arial; font-size: 13px; color: #3d1f00; outline: none; cursor: pointer; }
+.f-select:focus { border-color: #d97706; }
+.f-type-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid #f0d49a; }
+.f-type-btn { flex: 1; padding: 10px 13px; font-family: Arial; font-size: 13px; font-weight: 700; border: none; cursor: pointer; background: #fff8ed; color: #a07840; transition: all 0.18s; white-space: nowrap; }
+.f-type-btn.ai { background: #15803d; color: #fff; }
+.f-type-btn.ae { background: #b91c1c; color: #fff; }
+.f-submit { width: 100%; background: linear-gradient(90deg,#d97706,#fbbf24); color: #fff; border: none; border-radius: 8px; padding: 12px; font-family: Arial; font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 1px; }
+.f-submit:hover { opacity: 0.9; }
+
+.f-filter-row { display: flex; gap: 7px; flex-wrap: wrap; }
+.f-filter-input { flex: 1; min-width: 110px; background: #fff8ed; border: 1px solid #f0d49a; border-radius: 8px; padding: 8px 11px; font-family: Arial; font-size: 13px; color: #3d1f00; outline: none; }
+.f-filter-input:focus { border-color: #d97706; }
+.f-filter-input::placeholder { color: #a07840; }
+.f-clear-btn { background: transparent; border: 1px solid #f0d49a; border-radius: 8px; padding: 8px 12px; font-family: Arial; font-size: 11px; color: #a07840; cursor: pointer; }
+.f-clear-btn:hover { border-color: #d97706; color: #d97706; }
+
+.f-trans-card { background: #fff; border: 1px solid #f0d49a; border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
+.f-trans-header { display: grid; grid-template-columns: 1fr 100px 60px 26px; gap: 6px; padding: 9px 14px; background: #fef3d8; border-bottom: 1px solid #f0d49a; font-size: 9px; letter-spacing: 2px; color: #a07840; text-transform: uppercase; }
+.f-trans-list { max-height: 340px; overflow-y: auto; }
+.f-trans-item { display: grid; grid-template-columns: 1fr 100px 60px 26px; gap: 6px; padding: 10px 14px; border-bottom: 1px solid #fff8ed; align-items: center; }
+.f-trans-item:hover { background: #fff8ed; }
+.f-trans-item:last-child { border-bottom: none; }
+.f-t-name { font-size: 13px; color: #3d1f00; }
+.f-t-date { font-size: 10px; color: #a07840; margin-top: 1px; }
+.f-t-amt { font-size: 13px; font-weight: 700; text-align: right; }
+.f-t-amt.income { color: #15803d; }
+.f-t-amt.expense { color: #b91c1c; }
+.f-t-method { font-size: 10px; padding: 2px 6px; border-radius: 4px; text-align: center; font-weight: 700; }
+.f-t-method.cash { background: rgba(217,119,6,0.12); color: #d97706; }
+.f-t-method.card { background: rgba(2,132,199,0.10); color: #0284c7; }
+.f-t-del { width: 22px; height: 22px; border-radius: 5px; border: none; background: transparent; color: #a07840; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+.f-t-del:hover { background: rgba(185,28,28,0.08); color: #b91c1c; }
+.f-empty { text-align: center; padding: 28px; color: #a07840; font-size: 13px; }
+
+.f-stats-grid { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+.f-stats-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: #fff8ed; border-radius: 8px; font-size: 13px; }
+.f-s-name { color: #3d1f00; flex: 1; }
+.f-s-count { font-size: 10px; color: #a07840; margin: 0 10px; }
+.f-s-income { font-weight: 700; color: #15803d; }
+.f-s-expense { font-weight: 700; color: #b91c1c; margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="f-container">
+
+  <div class="f-header">
+    <div class="f-header-sub">Финансовый учёт</div>
+    <div class="f-header-name">БЕХРУЗ</div>
+    <div class="f-header-date" id="fHeaderDate">—</div>
+  </div>
+
+  <div class="f-balance-card">
+    <div class="f-bal-lbl">Текущий баланс</div>
+    <div class="f-bal-amt" id="fBalAmt">0 сум</div>
+    <div class="f-bal-sub" id="fBalSub">—</div>
+  </div>
+
+  <div class="f-day-grid" style="margin-bottom:8px">
+    <div class="f-day-card" style="border-color:rgba(217,119,6,0.4);background:rgba(254,243,216,0.6)"><div class="f-day-lbl" style="color:#d97706">Сегодня · Приход</div><div class="f-day-amt income" id="fTodayIn">0 сум</div><div class="f-day-sub" id="fTodayInC">0 операций</div></div>
+    <div class="f-day-card" style="border-color:rgba(217,119,6,0.4);background:rgba(254,243,216,0.6)"><div class="f-day-lbl" style="color:#d97706">Сегодня · Расход</div><div class="f-day-amt expense" id="fTodayOut">0 сум</div><div class="f-day-sub" id="fTodayOutC">0 операций</div></div>
+  </div>
+  <div class="f-day-grid">
+    <div class="f-day-card"><div class="f-day-lbl">Вчера · Приход</div><div class="f-day-amt income" id="fYestIn">0 сум</div><div class="f-day-sub" id="fYestInC">0 операций</div></div>
+    <div class="f-day-card"><div class="f-day-lbl">Вчера · Расход</div><div class="f-day-amt expense" id="fYestOut">0 сум</div><div class="f-day-sub" id="fYestOutC">0 операций</div></div>
+  </div>
+
+  <div class="f-card" style="margin-top:12px">
+    <div class="f-card-title">➕ Новая запись</div>
+    <input class="f-input" id="fName" type="text" placeholder="Название..." list="fNamesList"/>
+    <datalist id="fNamesList"></datalist>
+    <div class="f-row">
+      <input class="f-input" id="fAmount" type="number" placeholder="Сумма" style="margin-bottom:0;flex:1;min-width:100px"/>
+      <select class="f-select" id="fMethod"><option value="cash">💵 Наличка</option><option value="card">💳 Карточка</option></select>
+      <div class="f-type-toggle">
+        <button class="f-type-btn ai" id="fBtnIn" onclick="fSetType('income')">▲ Приход</button>
+        <button class="f-type-btn" id="fBtnOut" onclick="fSetType('expense')">▼ Расход</button>
+      </div>
+    </div>
+    <button class="f-submit" style="margin-top:8px" onclick="fAdd()">ДОБАВИТЬ ЗАПИСЬ</button>
+  </div>
+
+  <div class="f-card">
+    <div class="f-card-title">🔍 Фильтры</div>
+    <div class="f-filter-row">
+      <input class="f-filter-input" id="fFilterName" type="text" placeholder="По названию..." oninput="fRenderList()"/>
+      <input class="f-filter-input" id="fFilterDate" type="date" onchange="fRenderList()" style="max-width:145px"/>
+      <select class="f-select" id="fFilterType" onchange="fRenderList()"><option value="all">Все</option><option value="income">Приход</option><option value="expense">Расход</option></select>
+      <button class="f-clear-btn" onclick="fClearFilters()">✕</button>
+    </div>
+  </div>
+
+  <div class="f-trans-card">
+    <div class="f-trans-header"><span>Название</span><span style="text-align:right">Сумма</span><span>Способ</span><span></span></div>
+    <div class="f-trans-list" id="fTransList"></div>
+  </div>
+
+  <div class="f-card">
+    <div class="f-card-title">📊 По названиям (месяц)</div>
+    <div class="f-stats-grid" id="fStatsGrid"></div>
+  </div>
+
+</div>
+
+<script>
+const F_KEY = 'behruz_finance_v1'; // отдельный ключ для Бехруза
+let fType = 'income';
+
+function fGetState(){try{return JSON.parse(localStorage.getItem(F_KEY))||[];}catch{return[];}}
+function fSave(d){localStorage.setItem(F_KEY,JSON.stringify(d));}
+function fFmt(n){return Math.abs(Math.round(n)).toLocaleString('ru-RU')+' сум';}
+function fTodayStr(){return new Date().toISOString().slice(0,10);}
+function fYestStr(){const d=new Date();d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);}
+function fFmtDateRu(str){
+  const[y,m,d]=str.split('-');
+  const mo=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  return `${parseInt(d)} ${mo[parseInt(m)-1]}`;
+}
+function fSetType(t){
+  fType=t;
+  document.getElementById('fBtnIn').className='f-type-btn'+(t==='income'?' ai':'');
+  document.getElementById('fBtnOut').className='f-type-btn'+(t==='expense'?' ae':'');
+}
+function fAdd(){
+  const name=document.getElementById('fName').value.trim();
+  const amt=parseFloat(document.getElementById('fAmount').value);
+  const method=document.getElementById('fMethod').value;
+  if(!name||!amt||amt<=0){alert('Введите название и сумму!');return;}
+  const data=fGetState();
+  data.unshift({id:Date.now(),name,amount:amt,type:fType,method,date:fTodayStr()});
+  fSave(data);
+  document.getElementById('fName').value='';document.getElementById('fAmount').value='';
+  fRender();
+}
+function fDelete(id){fSave(fGetState().filter(t=>t.id!==id));fRender();}
+function fClearFilters(){
+  document.getElementById('fFilterName').value='';
+  document.getElementById('fFilterDate').value='';
+  document.getElementById('fFilterType').value='all';
+  fRenderList();
+}
+function fGetFiltered(){
+  const data=fGetState();
+  const fn=document.getElementById('fFilterName').value.toLowerCase().trim();
+  const fd=document.getElementById('fFilterDate').value;
+  const ft=document.getElementById('fFilterType').value;
+  return data.filter(t=>{
+    if(fn&&!t.name.toLowerCase().includes(fn))return false;
+    if(fd&&t.date!==fd)return false;
+    if(ft!=='all'&&t.type!==ft)return false;
+    return true;
+  });
+}
+function fRenderBalance(){
+  const data=fGetState();
+  const total=data.reduce((s,t)=>t.type==='income'?s+t.amount:s-t.amount,0);
+  document.getElementById('fBalAmt').textContent=(total>=0?'+':'-')+fFmt(total);
+  document.getElementById('fBalSub').textContent=`${data.length} операций всего`;
+  const today=fTodayStr();
+  const tD=data.filter(t=>t.date===today);
+  const tIn=tD.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const tOut=tD.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  document.getElementById('fTodayIn').textContent='+'+fFmt(tIn);
+  document.getElementById('fTodayOut').textContent='-'+fFmt(tOut);
+  document.getElementById('fTodayInC').textContent=tD.filter(t=>t.type==='income').length+' операций';
+  document.getElementById('fTodayOutC').textContent=tD.filter(t=>t.type==='expense').length+' операций';
+  const yest=fYestStr();
+  const yD=data.filter(t=>t.date===yest);
+  const yIn=yD.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const yOut=yD.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  document.getElementById('fYestIn').textContent='+'+fFmt(yIn);
+  document.getElementById('fYestOut').textContent='-'+fFmt(yOut);
+  document.getElementById('fYestInC').textContent=yD.filter(t=>t.type==='income').length+' операций';
+  document.getElementById('fYestOutC').textContent=yD.filter(t=>t.type==='expense').length+' операций';
+}
+function fRenderList(){
+  const filtered=fGetFiltered();
+  const list=document.getElementById('fTransList');
+  if(filtered.length===0){list.innerHTML='<div class="f-empty">Нет записей</div>';return;}
+  list.innerHTML=filtered.map(t=>`
+    <div class="f-trans-item">
+      <div><div class="f-t-name">${t.name}</div><div class="f-t-date">${fFmtDateRu(t.date)}</div></div>
+      <div class="f-t-amt ${t.type}">${t.type==='income'?'+':'-'}${fFmt(t.amount)}</div>
+      <div class="f-t-method ${t.method}">${t.method==='cash'?'Нал':'Карта'}</div>
+      <button class="f-t-del" onclick="fDelete(${t.id})">✕</button>
+    </div>
+  `).join('');
+}
+function fRenderStats(){
+  const data=fGetState();const now=new Date();
+  const mD=data.filter(t=>{const[y,m]=t.date.split('-');return parseInt(y)===now.getFullYear()&&parseInt(m)===(now.getMonth()+1);});
+  const groups={};
+  mD.forEach(t=>{const k=t.name.toLowerCase();if(!groups[k])groups[k]={name:t.name,income:0,expense:0,count:0};if(t.type==='income')groups[k].income+=t.amount;else groups[k].expense+=t.amount;groups[k].count++;});
+  const sorted=Object.values(groups).sort((a,b)=>(b.income+b.expense)-(a.income+a.expense));
+  const grid=document.getElementById('fStatsGrid');
+  if(sorted.length===0){grid.innerHTML='<div style="text-align:center;padding:16px;color:#a07840;font-size:13px">Нет данных за этот месяц</div>';return;}
+  grid.innerHTML=sorted.map(g=>`
+    <div class="f-stats-row">
+      <span class="f-s-name">${g.name}</span>
+      <span class="f-s-count">${g.count}×</span>
+      ${g.income>0?`<span class="f-s-income">+${fFmt(g.income)}</span>`:''}
+      ${g.expense>0?`<span class="f-s-expense">-${fFmt(g.expense)}</span>`:''}
+    </div>
+  `).join('');
+}
+function fUpdateNamesList(){
+  const names=[...new Set(fGetState().map(t=>t.name))];
+  document.getElementById('fNamesList').innerHTML=names.map(n=>`<option value="${n}">`).join('');
+}
+function fRender(){fRenderBalance();fRenderList();fRenderStats();fUpdateNamesList();}
+
+(function(){
+  const d=new Date();
+  const m=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  document.getElementById('fHeaderDate').textContent=`${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;
+  fRender();
+})();
+
+document.getElementById('fAmount').addEventListener('keydown',e=>{if(e.key==='Enter')fAdd();});
+</script>
+</body>
+</html>
